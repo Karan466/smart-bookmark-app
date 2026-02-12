@@ -9,11 +9,11 @@ export async function GET(request: Request) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  // Exchange auth code for session
-  await supabase.auth.exchangeCodeForSession(
-    requestUrl.searchParams.get("code")!
-  );
+  const code = requestUrl.searchParams.get("code");
 
-  // Redirect to dashboard after login
+  if (code) {
+    await supabase.auth.exchangeCodeForSession(code);
+  }
+
   return NextResponse.redirect(new URL("/dashboard", requestUrl.origin));
 }
