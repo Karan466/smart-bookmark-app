@@ -10,20 +10,19 @@ export default function Dashboard() {
   const router = useRouter();
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
+    const checkUser = async () => {
+      const { data } = await supabase.auth.getUser();
 
-      if (!data.session) {
+      if (!data.user) {
         router.push("/login");
       }
     };
 
-    checkSession();
-  }, []);
+    checkUser();
+  }, [router]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8">
-      
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl p-8">
         
         <div className="flex justify-between items-center mb-8">
