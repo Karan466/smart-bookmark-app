@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+📘 Smart Bookmark App
 
-## Getting Started
+A full-stack real-time bookmark manager that allows users to securely save and manage personal bookmarks using Google authentication.
 
-First, run the development server:
+Built with Next.js (App Router), Supabase (Auth, Database, Realtime), and Tailwind CSS, the application ensures each user can access only their own bookmarks with instant synchronization across multiple tabs.
 
-```bash
+🌐 Live Demo
+
+👉 https://smart-bookmark-app-git-main-karan466s-projects.vercel.app
+
+✨ Features
+
+🔐 Google OAuth authentication (Supabase Auth)
+
+➕ Add personal bookmarks (URL + title)
+
+🔒 Private per-user data using Row Level Security
+
+⚡ Real-time updates across tabs (Supabase Realtime)
+
+❌ Delete bookmarks
+
+🌐 Deployed on Vercel
+
+🛠️ Tech Stack
+
+Next.js (App Router)
+
+Supabase (Auth, PostgreSQL, Realtime)
+
+Tailwind CSS
+
+TypeScript
+
+Vercel Deployment
+
+⚙️ Local Setup
+
+Clone repo
+
+Install dependencies
+
+npm install
+
+
+Add environment variables:
+
+NEXT_PUBLIC_SUPABASE_URL=your_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key
+
+
+Run locally:
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🧠 Challenges Faced & Solutions
+🔹 OAuth Redirect Issues in Production
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Problem: Google login worked locally but failed on deployed site.
+Solution: Updated redirect URLs in Supabase and Google Cloud and used dynamic redirect:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+redirectTo: `${window.location.origin}/auth/callback`
 
-## Learn More
+🔹 Double Authentication Issue
 
-To learn more about Next.js, take a look at the following resources:
+Problem: Users had to sign in twice due to session not being restored.
+Solution: Implemented proper OAuth callback handling and session checks.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+🔹 Row Level Security Blocking Inserts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Problem: Bookmarks were not saving due to missing RLS policies.
+Solution: Added SELECT, INSERT, DELETE policies for authenticated users.
 
-## Deploy on Vercel
+🔹 Real-Time Synchronization
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Problem: Updates did not appear across tabs initially.
+Solution: Enabled Supabase Realtime subscriptions on bookmarks table.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+📈 Future Improvements
+
+Bookmark tags & search
+
+Folder organization
+
+Dark mode
+
+Bookmark previews
+
+AI-based bookmark categorization
+
+👨‍💻 Author
+
+Karan Kumar
