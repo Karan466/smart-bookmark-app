@@ -1,12 +1,12 @@
 📘 Smart Bookmark App
 
-A full-stack real-time bookmark manager that allows users to securely save and manage personal bookmarks using Google authentication.
+A full-stack, real-time bookmark manager that allows users to securely save and manage personal bookmarks using Google authentication.
 
-Built with Next.js (App Router), Supabase (Auth, Database, Realtime), and Tailwind CSS, the application ensures each user can access only their own bookmarks with instant synchronization across multiple tabs.
+Built with Next.js (App Router), Supabase (Auth, Database, Realtime), and Tailwind CSS, the application ensures each user can access only their own bookmarks, with instant synchronization across multiple tabs.
 
 🌐 Live Demo
 
-👉 https://smart-bookmark-app-git-main-karan466s-projects.vercel.app
+👉 https://smart-bookmark-app-zeta.vercel.app
 
 ✨ Features
 
@@ -14,7 +14,7 @@ Built with Next.js (App Router), Supabase (Auth, Database, Realtime), and Tailwi
 
 ➕ Add personal bookmarks (URL + title)
 
-🔒 Private per-user data using Row Level Security
+🔒 Private per-user data using Row Level Security (RLS)
 
 ⚡ Real-time updates across tabs (Supabase Realtime)
 
@@ -32,55 +32,57 @@ Tailwind CSS
 
 TypeScript
 
-Vercel Deployment
+Vercel (Deployment)
 
 ⚙️ Local Setup
+1️⃣ Clone the repository
+git clone <your-repo-url>
+cd smart-bookmark-app
 
-Clone repo
-
-Install dependencies
-
+2️⃣ Install dependencies
 npm install
 
+3️⃣ Add environment variables
 
-Add environment variables:
+Create a .env.local file:
 
-NEXT_PUBLIC_SUPABASE_URL=your_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-
-Run locally:
-
+4️⃣ Run locally
 npm run dev
+
+
+Open 👉 http://localhost:3000
 
 🧠 Challenges Faced & Solutions
 🔹 OAuth Redirect Issues in Production
 
-Problem: Google login worked locally but failed on deployed site.
-Solution: Updated redirect URLs in Supabase and Google Cloud and used dynamic redirect:
+Problem: Google login worked locally but failed after deployment.
+Solution: Correctly configured Supabase Site URL and Redirect URLs and used a dynamic redirect:
 
 redirectTo: `${window.location.origin}/auth/callback`
 
 🔹 Double Authentication Issue
 
-Problem: Users had to sign in twice due to session not being restored.
-Solution: Implemented proper OAuth callback handling and session checks.
+Problem: Users had to sign in twice due to session hydration timing issues.
+Solution: Implemented proper OAuth callback handling using exchangeCodeForSession and session-based auth checks.
 
 🔹 Row Level Security Blocking Inserts
 
 Problem: Bookmarks were not saving due to missing RLS policies.
-Solution: Added SELECT, INSERT, DELETE policies for authenticated users.
+Solution: Added SELECT, INSERT, and DELETE policies scoped to auth.uid().
 
 🔹 Real-Time Synchronization
 
-Problem: Updates did not appear across tabs initially.
-Solution: Enabled Supabase Realtime subscriptions on bookmarks table.
+Problem: Bookmark updates did not appear instantly across tabs.
+Solution: Enabled Supabase Realtime and implemented client-side subscriptions with state refresh.
 
 📈 Future Improvements
 
 Bookmark tags & search
 
-Folder organization
+Folder-based organization
 
 Dark mode
 
