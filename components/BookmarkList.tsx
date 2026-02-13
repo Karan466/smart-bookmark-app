@@ -6,14 +6,9 @@ import { supabase } from "@/lib/supabaseClient";
 export default function BookmarkList() {
   const [bookmarks, setBookmarks] = useState<any[]>([]);
 
-  // 🔹 Fetch bookmarks for current user
   const fetchBookmarks = async () => {
     const { data: userData } = await supabase.auth.getUser();
-
-    if (!userData.user) {
-      console.log("No user session");
-      return;
-    }
+    if (!userData.user) return;
 
     const { data, error } = await supabase
       .from("bookmarks")
@@ -21,9 +16,7 @@ export default function BookmarkList() {
       .eq("user_id", userData.user.id)
       .order("created_at", { ascending: false });
 
-    if (error) {
-      console.error("Fetch error:", error);
-    } else {
+    if (!error) {
       setBookmarks(data || []);
     }
   };
@@ -31,7 +24,11 @@ export default function BookmarkList() {
   useEffect(() => {
     fetchBookmarks();
 
-    // ⚡ REALTIME SUBSCRIPTION
+    // 🔥 manual refresh event (after add)
+    const handler = () => fetchBookmarks();
+    window.addEventListener("bookmark-added", handler);
+
+    // ⚡ realtime (multi-tab)
     const channel = supabase
       .channel("bookmarks-realtime")
       .on(
@@ -42,35 +39,30 @@ export default function BookmarkList() {
       .subscribe();
 
     return () => {
+      window.removeEventListener("bookmark-added", handler);
       supabase.removeChannel(channel);
     };
   }, []);
 
-  // 🔥 DELETE FUNCTION (FIXED)
   const deleteBookmark = async (id: string) => {
     const { data: userData } = await supabase.auth.getUser();
-
-    if (!userData.user) {
-      alert("Session expired. Please login again.");
-      return;
-    }
+    if (!userData.user) return;
 
     const { error } = await supabase
       .from("bookmarks")
       .delete()
       .eq("id", id)
-      .eq("user_id", userData.user.id); // 🔥 REQUIRED FOR RLS
+      .eq("user_id", userData.user.id);
 
-    if (error) {
-      console.error("Delete error:", error);
-      alert("Delete failed");
-    } else {
+    if (!error) {
       fetchBookmarks();
+    } else {
+      console.error("Delete error:", error);
     }
   };
 
   return (
-    <div className="mt-6">
+    <div className="mt-4 space-y-2">
       {bookmarks.length === 0 && (
         <p className="text-gray-500">No bookmarks yet</p>
       )}
@@ -78,7 +70,7 @@ export default function BookmarkList() {
       {bookmarks.map((b) => (
         <div
           key={b.id}
-          className="flex justify-between items-center border p-3 mb-2 rounded-lg bg-white shadow"
+          className="flex justify-between items-center border p-3 rounded"
         >
           <a
             href={b.url}
@@ -91,7 +83,7 @@ export default function BookmarkList() {
 
           <button
             onClick={() => deleteBookmark(b.id)}
-            className="text-red-500 hover:text-red-700 font-medium"
+            className="text-red-500 hover:text-red-700"
           >
             Delete
           </button>

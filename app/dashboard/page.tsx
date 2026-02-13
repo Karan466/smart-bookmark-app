@@ -10,26 +10,36 @@ export default function Dashboard() {
   const router = useRouter();
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data } = await supabase.auth.getUser();
+    let mounted = true;
 
-      if (!data.user) {
-        router.push("/login");
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (mounted && !session) {
+        router.replace("/login");
       }
     };
 
-    checkUser();
+    checkSession();
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (!session) router.replace("/login");
+      }
+    );
+
+    return () => {
+      mounted = false;
+      listener.subscription.unsubscribe();
+    };
   }, [router]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8">
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl p-8">
-        
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800">
             My Bookmarks
           </h1>
-
           <span className="text-sm text-gray-500">
             Real-time sync enabled ⚡
           </span>
@@ -40,7 +50,11 @@ export default function Dashboard() {
             Add New Bookmark
           </h2>
 
-          <BookmarkForm onAdd={() => {}} />
+          <BookmarkForm
+            onAdd={() => {
+              window.dispatchEvent(new Event("bookmark-added"));
+            }}
+          />
         </div>
 
         <div>

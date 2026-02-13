@@ -3,42 +3,61 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
-export default function BookmarkForm({ onAdd }: any) {
+export default function BookmarkForm({ onAdd }: { onAdd: () => void }) {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const addBookmark = async () => {
+    if (!title || !url) return;
+
+    setLoading(true);
+
     const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) {
+      setLoading(false);
+      return;
+    }
 
-    if (!userData.user) return;
+    const { error } = await supabase.from("bookmarks").insert([
+      {
+        title,
+        url,
+        user_id: userData.user.id,
+      },
+    ]);
 
-    await supabase.from("bookmarks").insert({
-      title,
-      url,
-      user_id: userData.user.id,
-    });
+    setLoading(false);
 
-    setTitle("");
-    setUrl("");
-    onAdd();
+    if (!error) {
+      setTitle("");
+      setUrl("");
+      onAdd(); // 🔥 force refresh in list
+    } else {
+      console.error("Insert error:", error);
+    }
   };
 
   return (
-    <div className="space-x-2">
+    <div className="flex gap-2">
       <input
-        placeholder="Title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="border p-2"
+        placeholder="Title"
+        className="border p-2 rounded w-1/3"
       />
       <input
-        placeholder="URL"
         value={url}
         onChange={(e) => setUrl(e.target.value)}
-        className="border p-2"
+        placeholder="https://example.com"
+        className="border p-2 rounded w-1/2"
       />
-      <button onClick={addBookmark} className="bg-green-600 text-white px-4 py-2">
-        Add
+      <button
+        onClick={addBookmark}
+        disabled={loading}
+        className="bg-indigo-600 text-white px-4 rounded disabled:opacity-50"
+      >
+        {loading ? "Adding..." : "Add"}
       </button>
     </div>
   );
